@@ -8,6 +8,9 @@ var (
 	ErrorNameUnique          = "User with the same first and last name already exists"
 	ResponseUserNotFound     = "User not found"
 	ResponseValidationFailed = "User did not pass validation"
+	ErrorBadRequest          = "Bad Request"
+	ErrorStatusNotFound      = "Status Not Found"
+	ErrorInternalServerError = "Internal Server Error"
 )
 
 type ErrorMessage struct {
