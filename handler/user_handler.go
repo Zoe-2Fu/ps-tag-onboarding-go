@@ -2,15 +2,16 @@ package handler
 
 import (
 	"context"
+	"log"
+	"net/http"
+	"time"
+
 	"github.com/Zoe-2Fu/ps-tag-onboarding-go/configs"
 	"github.com/Zoe-2Fu/ps-tag-onboarding-go/model"
 	validator "github.com/Zoe-2Fu/ps-tag-onboarding-go/validators"
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
-	"log"
-	"net/http"
-	"time"
 )
 
 var userCollection *mongo.Collection = configs.GetCollection(configs.DB, "userdetails")
@@ -35,11 +36,12 @@ func Save(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Can't bind values"})
 	}
 
-	if err := validator.ValidateUserDetails(c, *user, userCollection); err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-
 	log.Printf("Received user data: %+v\n", user)
+
+	validationErr := validator.ValidateUserDetails(c, *user, userCollection)
+	if validationErr != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, validationErr)
+	}
 
 	userBSON, err := bson.Marshal(user)
 	if err != nil {
