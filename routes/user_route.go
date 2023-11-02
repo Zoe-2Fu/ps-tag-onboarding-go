@@ -6,6 +6,6 @@ import (
 )
 
 func UserRoute(e *echo.Echo) {
-	e.GET("/user/:id", handler.Find)
+	e.GET("/find/:id", handler.Find)
 	e.POST("/save", handler.Save)
 }

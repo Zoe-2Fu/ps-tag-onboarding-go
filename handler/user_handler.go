@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/Zoe-2Fu/ps-tag-onboarding-go/configs"
 	"github.com/Zoe-2Fu/ps-tag-onboarding-go/model"
+	validator "github.com/Zoe-2Fu/ps-tag-onboarding-go/validators"
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -31,15 +32,18 @@ func Save(c echo.Context) error {
 
 	user := new(model.User)
 	if err := c.Bind(user); err != nil {
-		log.Printf("Can't bind values: %v\n", err)
 		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Can't bind values"})
+	}
+
+	if err := validator.ValidateUserDetails(c, *user, userCollection); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
 	}
 
 	log.Printf("Received user data: %+v\n", user)
 
 	userBSON, err := bson.Marshal(user)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "Failed to save user"})
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "Failed to marshaling BSON"})
 	}
 
 	_, err = userCollection.InsertOne(ctx, userBSON)
