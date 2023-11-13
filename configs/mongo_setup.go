@@ -2,13 +2,18 @@ package configs
 
 import (
 	"context"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 	"time"
+
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func ConnectMongoDB() *mongo.Client {
+type MongoClient struct {
+	client *mongo.Client
+}
+
+func ConnectMongoDB() *MongoClient {
 	clientOptions := options.Client().ApplyURI("mongodb://root:example@db:27017")
 	client, err := mongo.Connect(context.Background(), clientOptions)
 	if err != nil {
@@ -24,12 +29,14 @@ func ConnectMongoDB() *mongo.Client {
 
 	log.Println("Connected to MongoDB")
 
-	return client
+	return &MongoClient{client: client}
 }
-
-var DB *mongo.Client = ConnectMongoDB()
 
 func GetCollection(client *mongo.Client, collectionName string) *mongo.Collection {
 	collection := client.Database("User").Collection(collectionName)
 	return collection
+}
+
+func (mongo *MongoClient) NewMongoDB() *mongo.Database {
+	return mongo.client.Database("User")
 }

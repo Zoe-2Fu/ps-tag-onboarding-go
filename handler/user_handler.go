@@ -2,26 +2,37 @@ package handler
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"time"
 
-	"github.com/Zoe-2Fu/ps-tag-onboarding-go/configs"
 	"github.com/Zoe-2Fu/ps-tag-onboarding-go/model"
 	errs "github.com/Zoe-2Fu/ps-tag-onboarding-go/model/error"
-	validator "github.com/Zoe-2Fu/ps-tag-onboarding-go/validators"
 	"github.com/labstack/echo/v4"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
-var userCollection *mongo.Collection = configs.GetCollection(configs.DB, "userdetails")
+type userRepo interface {
+	Find(ctx echo.Context, id string) (model.User, error)
+	Save(ctx context.Context, user model.User) error
+}
 
-func Find(c echo.Context) error {
+type userValidator interface {
+	ValidateUserDetails(c echo.Context, user model.User) *errs.ErrorMessage
+}
+
+type UserHandler struct {
+	userRepo  userRepo
+	validator userValidator
+}
+
+func NewUserHandler(repo userRepo, validator userValidator) *UserHandler {
+	return &UserHandler{userRepo: repo, validator: validator}
+}
+
+func (h *UserHandler) Find(c echo.Context) error {
 	id := c.Param("id")
 	var user model.User
 
-	err := userCollection.FindOne(c.Request().Context(), bson.M{"id": id}).Decode(&user)
+	user, err := h.userRepo.Find(c, id)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, errs.ErrorMessage{
 			Error:   errs.ErrorStatusNotFound,
@@ -31,7 +42,7 @@ func Find(c echo.Context) error {
 	return c.JSON(http.StatusOK, user)
 }
 
-func Save(c echo.Context) error {
+func (h *UserHandler) Save(c echo.Context) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -43,27 +54,12 @@ func Save(c echo.Context) error {
 		})
 	}
 
-	log.Printf("Received user data: %+v\n", user)
-
-	validationErr := validator.ValidateUserDetails(c, *user, userCollection)
-	if validationErr != nil {
+	if validationErr := h.validator.ValidateUserDetails(c, *user); validationErr != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, validationErr)
 	}
 
-	userBSON, err := bson.Marshal(user)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, errs.ErrorMessage{
-			Error:   errs.ErrorInternalServerError,
-			Details: []string{"Failed to marshaling BSON"},
-		})
-	}
-
-	_, err = userCollection.InsertOne(ctx, userBSON)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, errs.ErrorMessage{
-			Error:   errs.ErrorInternalServerError,
-			Details: []string{"Failed to save user"},
-		})
+	if err := h.userRepo.Save(ctx, *user); err != nil {
+		return err
 	}
 
 	return c.JSON(http.StatusCreated, user)

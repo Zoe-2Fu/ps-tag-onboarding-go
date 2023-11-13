@@ -5,7 +5,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func UserRoute(e *echo.Echo) {
+func UserRoute(e *echo.Echo, handler handler.UserHandler) {
 	e.GET("/find/:id", handler.Find)
 	e.POST("/save", handler.Save)
 }

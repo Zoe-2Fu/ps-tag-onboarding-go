@@ -7,3 +7,7 @@ type User struct {
 	Email     string `json:"email" bson:"email"`
 	Age       int    `json:"age" bson:"age"`
 }
+
+func NewUser(id string, fn string, ln string, email string, age int) User {
+	return User{id, fn, ln, email, age}
+}

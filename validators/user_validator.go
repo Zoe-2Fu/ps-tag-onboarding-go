@@ -6,20 +6,28 @@ import (
 	"github.com/Zoe-2Fu/ps-tag-onboarding-go/model"
 	errs "github.com/Zoe-2Fu/ps-tag-onboarding-go/model/error"
 	"github.com/labstack/echo/v4"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func ValidateUserDetails(c echo.Context, user model.User, userCollection *mongo.Collection) *errs.ErrorMessage {
+type userRepo interface {
+	ValidaiteUserExisted(ctx echo.Context, user model.User) bool
+}
+
+type UserValidator struct {
+	userRepo userRepo
+}
+
+func NewUserValidator(repo userRepo) *UserValidator {
+	return &UserValidator{userRepo: repo}
+}
+
+func (v *UserValidator) ValidateUserDetails(c echo.Context, user model.User) *errs.ErrorMessage {
 	var errorDetails []string
 
-	// check if the user exist
-	existingUser := model.User{}
-	filter := bson.M{"firstname": user.FirstName}
+	isExist := v.userRepo.ValidaiteUserExisted(c, user)
+	if isExist {
+		errMsg := errs.NewErrorMessage(errs.ResponseValidationFailed, errs.ErrorNameUnique)
 
-	err := userCollection.FindOne(c.Request().Context(), filter).Decode(&existingUser)
-	if err == nil {
-		errorDetails = append(errorDetails, errs.ErrorNameUnique)
+		return &errMsg
 	}
 
 	// check if the user.Firstname && user.Lastname is not null

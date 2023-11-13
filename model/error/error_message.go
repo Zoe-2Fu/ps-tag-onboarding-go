@@ -17,3 +17,8 @@ type ErrorMessage struct {
 	Error   string   `json:"error"`
 	Details []string `json:"details"`
 }
+
+func NewErrorMessage(errMsg string, detail string) ErrorMessage {
+	details := []string{detail}
+	return ErrorMessage{errMsg, details}
+}
