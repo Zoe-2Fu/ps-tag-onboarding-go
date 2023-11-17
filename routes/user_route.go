@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"github.com/Zoe-2Fu/ps-tag-onboarding-go/handler"
+	handler "github.com/Zoe-2Fu/ps-tag-onboarding-go/handlers"
 	"github.com/labstack/echo/v4"
 )
 

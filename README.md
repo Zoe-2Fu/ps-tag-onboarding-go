@@ -16,7 +16,7 @@
     ``` shell
         curl -X POST http://localhost:8080/save 
             -d '{"id": "233333", "firstname": "John", "lastname": "Doe", "email": "a@a.a", "age": 20}' 
-            -H 'Content-Type: application/json’ 
+            -H 'Content-Type: application/json'
     ```
 
 3. For testing the unit test, run the below command to run all the tests

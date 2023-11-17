@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/Zoe-2Fu/ps-tag-onboarding-go/configs"
-	"github.com/Zoe-2Fu/ps-tag-onboarding-go/handler"
+	handler "github.com/Zoe-2Fu/ps-tag-onboarding-go/handlers"
+	"github.com/Zoe-2Fu/ps-tag-onboarding-go/mongo"
 	"github.com/Zoe-2Fu/ps-tag-onboarding-go/routes"
 	validator "github.com/Zoe-2Fu/ps-tag-onboarding-go/validators"
 	"github.com/labstack/echo/v4"
@@ -11,10 +11,10 @@ import (
 func main() {
 	e := echo.New()
 
-	mongoClient := configs.ConnectMongoDB()
+	mongoClient := mongo.ConnectMongoDB()
 	db := mongoClient.NewMongoDB()
 
-	userRepo := configs.NewUserRepo(db)
+	userRepo := mongo.NewUserRepo(db)
 	userValidator := validator.NewUserValidator(userRepo)
 	userHandler := handler.NewUserHandler(userRepo, userValidator)
 

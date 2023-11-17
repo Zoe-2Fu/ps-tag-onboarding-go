@@ -2,7 +2,7 @@ package errs
 
 var (
 	ErrorAgeMinimum          = "User does not meet minimum age requirement"
-	ErrorEmailFormatT        = "User email must be properly formatted"
+	ErrorEmailFormat         = "User email must be properly formatted"
 	ErrorEmailRequired       = "User email required"
 	ErrorNameRequired        = "User first/last names required"
 	ErrorNameUnique          = "User with the same first and last name already exists"

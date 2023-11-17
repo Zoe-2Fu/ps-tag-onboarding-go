@@ -6,9 +6,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/Zoe-2Fu/ps-tag-onboarding-go/configs"
-	"github.com/Zoe-2Fu/ps-tag-onboarding-go/model"
-	errs "github.com/Zoe-2Fu/ps-tag-onboarding-go/model/error"
+	"github.com/Zoe-2Fu/ps-tag-onboarding-go/models"
+	errs "github.com/Zoe-2Fu/ps-tag-onboarding-go/models/error"
+	"github.com/Zoe-2Fu/ps-tag-onboarding-go/mongo"
 	validator "github.com/Zoe-2Fu/ps-tag-onboarding-go/validators"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -22,7 +22,7 @@ func TestSave_StatusCreated(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	userRepoMock := new(configs.UserRepoMock)
+	userRepoMock := new(mongo.UserRepoMock)
 	validatorMock := new(validator.UserValidatorMock)
 
 	userHandler := &UserHandler{
@@ -45,7 +45,7 @@ func TestFind_StatusOK(t *testing.T) {
 	// arrange
 	e := echo.New()
 
-	userRepoMock := new(configs.UserRepoMock)
+	userRepoMock := new(mongo.UserRepoMock)
 	validatorMock := new(validator.UserValidatorMock)
 
 	userHandler := &UserHandler{
@@ -54,7 +54,7 @@ func TestFind_StatusOK(t *testing.T) {
 	}
 
 	userID := "123333"
-	expectedUser := model.NewUser(userID, "John", "Doe", "a@a.a", 20)
+	expectedUser := models.NewUser(userID, "John", "Doe", "a@a.a", 20)
 	expectedReponseBody, _ := json.Marshal(expectedUser)
 
 	userRepoMock.On("Find", mock.Anything, mock.Anything).Return(expectedUser, nil)
@@ -77,7 +77,7 @@ func TestFind_StatusNotFound(t *testing.T) {
 	// arrange
 	e := echo.New()
 
-	userRepoMock := new(configs.UserRepoMock)
+	userRepoMock := new(mongo.UserRepoMock)
 	validatorMock := new(validator.UserValidatorMock)
 
 	userHandler := &UserHandler{
@@ -90,7 +90,7 @@ func TestFind_StatusNotFound(t *testing.T) {
 		Error:   errs.ErrorStatusNotFound,
 		Details: []string{"User not found"},
 	})
-	userRepoMock.On("Find", mock.Anything, mock.Anything).Return(model.User{}, err)
+	userRepoMock.On("Find", mock.Anything, mock.Anything).Return(models.User{}, err)
 
 	req := httptest.NewRequest(http.MethodPost, "/find/"+userID, nil)
 	rec := httptest.NewRecorder()

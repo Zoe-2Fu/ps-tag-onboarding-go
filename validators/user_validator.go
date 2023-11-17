@@ -3,13 +3,13 @@ package validator
 import (
 	"strings"
 
-	"github.com/Zoe-2Fu/ps-tag-onboarding-go/model"
-	errs "github.com/Zoe-2Fu/ps-tag-onboarding-go/model/error"
+	"github.com/Zoe-2Fu/ps-tag-onboarding-go/models"
+	errs "github.com/Zoe-2Fu/ps-tag-onboarding-go/models/error"
 	"github.com/labstack/echo/v4"
 )
 
 type userRepo interface {
-	ValidaiteUserExisted(ctx echo.Context, user model.User) bool
+	ValidaiteUserExisted(user models.User) bool
 }
 
 type UserValidator struct {
@@ -20,25 +20,24 @@ func NewUserValidator(repo userRepo) *UserValidator {
 	return &UserValidator{userRepo: repo}
 }
 
-func (v *UserValidator) ValidateUserDetails(c echo.Context, user model.User) *errs.ErrorMessage {
+func (v *UserValidator) ValidateUserDetails(c echo.Context, user models.User) *errs.ErrorMessage {
 	var errorDetails []string
 
-	isExist := v.userRepo.ValidaiteUserExisted(c, user)
-	if isExist {
-		errMsg := errs.NewErrorMessage(errs.ResponseValidationFailed, errs.ErrorNameUnique)
-
-		return &errMsg
-	}
-
-	// check if the user.Firstname && user.Lastname is not null
 	if len(user.FirstName) == 0 || len(user.LastName) == 0 {
 		errorDetails = append(errorDetails, errs.ErrorNameRequired)
+	} else {
+		isExist := v.userRepo.ValidaiteUserExisted(user)
+		if isExist {
+			errMsg := errs.NewErrorMessage(errs.ResponseValidationFailed, errs.ErrorNameUnique)
+
+			return &errMsg
+		}
 	}
 
 	if len(user.Email) == 0 {
 		errorDetails = append(errorDetails, errs.ErrorEmailRequired)
 	} else if !strings.Contains(user.Email, "@") {
-		errorDetails = append(errorDetails, errs.ErrorEmailFormatT)
+		errorDetails = append(errorDetails, errs.ErrorEmailFormat)
 	}
 
 	if user.Age < 18 {

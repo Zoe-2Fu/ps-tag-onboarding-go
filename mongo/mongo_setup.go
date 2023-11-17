@@ -1,4 +1,4 @@
-package configs
+package mongo
 
 import (
 	"context"
@@ -30,11 +30,6 @@ func ConnectMongoDB() *MongoClient {
 	log.Println("Connected to MongoDB")
 
 	return &MongoClient{client: client}
-}
-
-func GetCollection(client *mongo.Client, collectionName string) *mongo.Collection {
-	collection := client.Database("User").Collection(collectionName)
-	return collection
 }
 
 func (mongo *MongoClient) NewMongoDB() *mongo.Database {

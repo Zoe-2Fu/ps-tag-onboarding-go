@@ -5,18 +5,18 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Zoe-2Fu/ps-tag-onboarding-go/model"
-	errs "github.com/Zoe-2Fu/ps-tag-onboarding-go/model/error"
+	"github.com/Zoe-2Fu/ps-tag-onboarding-go/models"
+	errs "github.com/Zoe-2Fu/ps-tag-onboarding-go/models/error"
 	"github.com/labstack/echo/v4"
 )
 
 type userRepo interface {
-	Find(ctx echo.Context, id string) (model.User, error)
-	Save(ctx context.Context, user model.User) error
+	Find(ctx echo.Context, id string) (models.User, error)
+	Save(ctx context.Context, user models.User) error
 }
 
 type userValidator interface {
-	ValidateUserDetails(c echo.Context, user model.User) *errs.ErrorMessage
+	ValidateUserDetails(c echo.Context, user models.User) *errs.ErrorMessage
 }
 
 type UserHandler struct {
@@ -30,7 +30,7 @@ func NewUserHandler(repo userRepo, validator userValidator) *UserHandler {
 
 func (h *UserHandler) Find(c echo.Context) error {
 	id := c.Param("id")
-	var user model.User
+	var user models.User
 
 	user, err := h.userRepo.Find(c, id)
 	if err != nil {
@@ -46,7 +46,7 @@ func (h *UserHandler) Save(c echo.Context) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	user := new(model.User)
+	user := new(models.User)
 	if err := c.Bind(user); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, errs.ErrorMessage{
 			Error:   errs.ErrorBadRequest,

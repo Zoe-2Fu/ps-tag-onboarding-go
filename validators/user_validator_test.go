@@ -5,9 +5,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/Zoe-2Fu/ps-tag-onboarding-go/configs"
-	"github.com/Zoe-2Fu/ps-tag-onboarding-go/model"
-	errs "github.com/Zoe-2Fu/ps-tag-onboarding-go/model/error"
+	"github.com/Zoe-2Fu/ps-tag-onboarding-go/models"
+	errs "github.com/Zoe-2Fu/ps-tag-onboarding-go/models/error"
+	"github.com/Zoe-2Fu/ps-tag-onboarding-go/mongo"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -22,9 +22,9 @@ func SetUpContext() echo.Context {
 
 func TestValidateUserDetails_ValidUserDetail(t *testing.T) {
 	c := SetUpContext()
-	user := model.NewUser("233333", "John", "Doe", "a@a.a", 20)
+	user := models.NewUser("233333", "John", "Doe", "a@a.a", 20)
 
-	userRepoMock := new(configs.UserRepoMock)
+	userRepoMock := new(mongo.UserRepoMock)
 	validator := &UserValidator{
 		userRepo: userRepoMock,
 	}
@@ -43,9 +43,9 @@ func TestValidateUserDetails_UserIsExisted(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/user", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	user := model.NewUser("233333", "John", "Doe", "a@a.a", 20)
+	user := models.NewUser("233333", "John", "Doe", "a@a.a", 20)
 
-	userRepoMock := new(configs.UserRepoMock)
+	userRepoMock := new(mongo.UserRepoMock)
 	validator := &UserValidator{
 		userRepo: userRepoMock,
 	}
@@ -62,9 +62,9 @@ func TestValidateUserDetails_UserIsExisted(t *testing.T) {
 
 func TestValidateUserDetails_UserNameIsMissing(t *testing.T) {
 	c := SetUpContext()
-	user := model.NewUser("233333", "", "Doe", "a@a.a", 20)
+	user := models.NewUser("233333", "", "Doe", "a@a.a", 20)
 
-	userRepoMock := new(configs.UserRepoMock)
+	userRepoMock := new(mongo.UserRepoMock)
 	validator := &UserValidator{
 		userRepo: userRepoMock,
 	}
@@ -81,9 +81,9 @@ func TestValidateUserDetails_UserNameIsMissing(t *testing.T) {
 
 func TestValidateUserDetails_UserEmailIsMissing(t *testing.T) {
 	c := SetUpContext()
-	user := model.NewUser("233333", "John", "Doe", "", 20)
+	user := models.NewUser("233333", "John", "Doe", "", 20)
 
-	userRepoMock := new(configs.UserRepoMock)
+	userRepoMock := new(mongo.UserRepoMock)
 	validator := &UserValidator{
 		userRepo: userRepoMock,
 	}
@@ -100,14 +100,14 @@ func TestValidateUserDetails_UserEmailIsMissing(t *testing.T) {
 
 func TestValidateUserDetails_InvaildUserEmailFormat(t *testing.T) {
 	c := SetUpContext()
-	user := model.NewUser("233333", "John", "Doe", "aa.a", 20)
+	user := models.NewUser("233333", "John", "Doe", "aa.a", 20)
 
-	userRepoMock := new(configs.UserRepoMock)
+	userRepoMock := new(mongo.UserRepoMock)
 	validator := &UserValidator{
 		userRepo: userRepoMock,
 	}
 
-	expectedOutput := errs.NewErrorMessage(errs.ResponseValidationFailed, errs.ErrorEmailFormatT)
+	expectedOutput := errs.NewErrorMessage(errs.ResponseValidationFailed, errs.ErrorEmailFormat)
 	expectedOutputPointer := &expectedOutput
 
 	userRepoMock.On("ValidaiteUserExisted", mock.Anything, mock.Anything).Return(false)
@@ -119,9 +119,9 @@ func TestValidateUserDetails_InvaildUserEmailFormat(t *testing.T) {
 
 func TestValidateUserDetails_InvaildUserAge(t *testing.T) {
 	c := SetUpContext()
-	user := model.NewUser("233333", "John", "Doe", "a@a.a", 16)
+	user := models.NewUser("233333", "John", "Doe", "a@a.a", 16)
 
-	userRepoMock := new(configs.UserRepoMock)
+	userRepoMock := new(mongo.UserRepoMock)
 	validator := &UserValidator{
 		userRepo: userRepoMock,
 	}
@@ -138,16 +138,16 @@ func TestValidateUserDetails_InvaildUserAge(t *testing.T) {
 
 func TestValidateUserDetails_MultipleUserDeatilErros(t *testing.T) {
 	c := SetUpContext()
-	user := model.NewUser("233333", "", "Doe", "aa.a", 20)
+	user := models.NewUser("233333", "", "Doe", "aa.a", 20)
 
-	userRepoMock := new(configs.UserRepoMock)
+	userRepoMock := new(mongo.UserRepoMock)
 	validator := &UserValidator{
 		userRepo: userRepoMock,
 	}
 
 	expectedOutput := errs.ErrorMessage{
 		Error:   errs.ResponseValidationFailed,
-		Details: []string{errs.ErrorNameRequired, errs.ErrorEmailFormatT},
+		Details: []string{errs.ErrorNameRequired, errs.ErrorEmailFormat},
 	}
 	expectedOutputPointer := &expectedOutput
 
