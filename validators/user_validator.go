@@ -5,7 +5,6 @@ import (
 
 	"github.com/Zoe-2Fu/ps-tag-onboarding-go/models"
 	errs "github.com/Zoe-2Fu/ps-tag-onboarding-go/models/error"
-	"github.com/labstack/echo/v4"
 )
 
 type userRepo interface {
@@ -20,7 +19,7 @@ func NewUserValidator(repo userRepo) *UserValidator {
 	return &UserValidator{userRepo: repo}
 }
 
-func (v *UserValidator) ValidateUserDetails(c echo.Context, user models.User) *errs.ErrorMessage {
+func (v *UserValidator) ValidateUserDetails(user models.User) *errs.ErrorMessage {
 	var errorDetails []string
 
 	if len(user.FirstName) == 0 || len(user.LastName) == 0 {

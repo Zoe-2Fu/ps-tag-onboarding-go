@@ -16,7 +16,7 @@ type userRepo interface {
 }
 
 type userValidator interface {
-	ValidateUserDetails(c echo.Context, user models.User) *errs.ErrorMessage
+	ValidateUserDetails(user models.User) *errs.ErrorMessage
 }
 
 type UserHandler struct {
@@ -54,7 +54,7 @@ func (h *UserHandler) Save(c echo.Context) error {
 		})
 	}
 
-	if validationErr := h.validator.ValidateUserDetails(c, *user); validationErr != nil {
+	if validationErr := h.validator.ValidateUserDetails(*user); validationErr != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, validationErr)
 	}
 
