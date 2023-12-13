@@ -1,8 +1,8 @@
 package validator
 
 import (
-	"github.com/Zoe-2Fu/ps-tag-onboarding-go/models"
-	errs "github.com/Zoe-2Fu/ps-tag-onboarding-go/models/error"
+	errs "github.com/Zoe-2Fu/ps-tag-onboarding-go/internal/constants"
+	models "github.com/Zoe-2Fu/ps-tag-onboarding-go/internal/data"
 	"github.com/stretchr/testify/mock"
 )
 

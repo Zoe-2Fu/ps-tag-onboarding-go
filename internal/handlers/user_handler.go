@@ -5,14 +5,15 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Zoe-2Fu/ps-tag-onboarding-go/models"
-	errs "github.com/Zoe-2Fu/ps-tag-onboarding-go/models/error"
+	errs "github.com/Zoe-2Fu/ps-tag-onboarding-go/internal/constants"
+	models "github.com/Zoe-2Fu/ps-tag-onboarding-go/internal/data"
 	"github.com/labstack/echo/v4"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type userRepo interface {
 	Find(ctx echo.Context, id string) (models.User, error)
-	Save(ctx context.Context, user models.User) error
+	Save(ctx context.Context, user models.User) (primitive.ObjectID, error)
 }
 
 type userValidator interface {
@@ -58,9 +59,16 @@ func (h *UserHandler) Save(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, validationErr)
 	}
 
-	if err := h.userRepo.Save(ctx, *user); err != nil {
+	insertedID, err := h.userRepo.Save(ctx, *user)
+	if err != nil {
 		return err
 	}
+
+	if insertedID == primitive.NilObjectID {
+		return echo.NewHTTPError(http.StatusBadRequest, "Failed to save user")
+	}
+
+	user.ID = insertedID
 
 	return c.JSON(http.StatusCreated, user)
 }
