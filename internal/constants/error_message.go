@@ -1,4 +1,4 @@
-package errs
+package constants
 
 var (
 	ErrorAgeMinimum          = "User does not meet minimum age requirement"

@@ -3,7 +3,7 @@ package handler
 import (
 	"net/http"
 
-	errs "github.com/Zoe-2Fu/ps-tag-onboarding-go/models/error"
+	errs "github.com/Zoe-2Fu/ps-tag-onboarding-go/internal/constants"
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/mongo"
 )

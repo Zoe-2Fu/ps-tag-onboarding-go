@@ -5,14 +5,15 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Zoe-2Fu/ps-tag-onboarding-go/models"
-	errs "github.com/Zoe-2Fu/ps-tag-onboarding-go/models/error"
+	errs "github.com/Zoe-2Fu/ps-tag-onboarding-go/internal/constants"
+	models "github.com/Zoe-2Fu/ps-tag-onboarding-go/internal/data"
 	"github.com/labstack/echo/v4"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type userRepo interface {
 	Find(ctx echo.Context, id string) (models.User, error)
-	Save(ctx context.Context, user models.User) error
+	Save(ctx context.Context, user models.User) (primitive.ObjectID, error)
 }
 
 type userValidator interface {
@@ -34,10 +35,8 @@ func (h *UserHandler) Find(c echo.Context) error {
 
 	user, err := h.userRepo.Find(c, id)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusNotFound, errs.ErrorMessage{
-			Error:   errs.ErrorStatusNotFound,
-			Details: []string{"User not found"},
-		})
+		errMsg := errs.NewErrorMessage(errs.ErrorBadRequest, "User not found")
+		return echo.NewHTTPError(http.StatusBadRequest, errMsg)
 	}
 	return c.JSON(http.StatusOK, user)
 }
@@ -48,19 +47,24 @@ func (h *UserHandler) Save(c echo.Context) error {
 
 	user := new(models.User)
 	if err := c.Bind(user); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, errs.ErrorMessage{
-			Error:   errs.ErrorBadRequest,
-			Details: []string{"Can't bind values"},
-		})
+		errMsg := errs.NewErrorMessage(errs.ErrorBadRequest, "Can't bind values")
+		return echo.NewHTTPError(http.StatusBadRequest, errMsg)
 	}
 
 	if validationErr := h.validator.ValidateUserDetails(*user); validationErr != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, validationErr)
 	}
 
-	if err := h.userRepo.Save(ctx, *user); err != nil {
+	insertedID, err := h.userRepo.Save(ctx, *user)
+	if err != nil {
 		return err
 	}
+
+	if insertedID == primitive.NilObjectID {
+		return echo.NewHTTPError(http.StatusBadRequest, "Failed to save user")
+	}
+
+	user.ID = insertedID
 
 	return c.JSON(http.StatusCreated, user)
 }

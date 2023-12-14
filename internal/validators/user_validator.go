@@ -1,14 +1,14 @@
 package validator
 
 import (
-	"strings"
+	"net/mail"
 
-	"github.com/Zoe-2Fu/ps-tag-onboarding-go/models"
-	errs "github.com/Zoe-2Fu/ps-tag-onboarding-go/models/error"
+	errs "github.com/Zoe-2Fu/ps-tag-onboarding-go/internal/constants"
+	models "github.com/Zoe-2Fu/ps-tag-onboarding-go/internal/data"
 )
 
 type userRepo interface {
-	ValidaiteUserExisted(user models.User) bool
+	ValidateUserExisted(user models.User) bool
 }
 
 type UserValidator struct {
@@ -25,7 +25,7 @@ func (v *UserValidator) ValidateUserDetails(user models.User) *errs.ErrorMessage
 	if len(user.FirstName) == 0 || len(user.LastName) == 0 {
 		errorDetails = append(errorDetails, errs.ErrorNameRequired)
 	} else {
-		isExist := v.userRepo.ValidaiteUserExisted(user)
+		isExist := v.userRepo.ValidateUserExisted(user)
 		if isExist {
 			errMsg := errs.NewErrorMessage(errs.ResponseValidationFailed, errs.ErrorNameUnique)
 
@@ -35,7 +35,7 @@ func (v *UserValidator) ValidateUserDetails(user models.User) *errs.ErrorMessage
 
 	if len(user.Email) == 0 {
 		errorDetails = append(errorDetails, errs.ErrorEmailRequired)
-	} else if !strings.Contains(user.Email, "@") {
+	} else if !ValidateEmailAddress(user.Email) {
 		errorDetails = append(errorDetails, errs.ErrorEmailFormat)
 	}
 
@@ -53,4 +53,9 @@ func (v *UserValidator) ValidateUserDetails(user models.User) *errs.ErrorMessage
 	}
 
 	return nil
+}
+
+func ValidateEmailAddress(email string) bool {
+	_, err := mail.ParseAddress(email)
+	return err == nil
 }

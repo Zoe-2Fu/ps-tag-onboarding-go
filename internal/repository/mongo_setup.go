@@ -1,4 +1,4 @@
-package mongo
+package repo
 
 import (
 	"context"
@@ -32,6 +32,6 @@ func ConnectMongoDB() *MongoClient {
 	return &MongoClient{client: client}
 }
 
-func (mongo *MongoClient) NewMongoDB() *mongo.Database {
-	return mongo.client.Database("User")
+func (mongo *MongoClient) NewMongoDB(db string) *mongo.Database {
+	return mongo.client.Database(db)
 }

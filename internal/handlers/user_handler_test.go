@@ -6,13 +6,14 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/Zoe-2Fu/ps-tag-onboarding-go/models"
-	errs "github.com/Zoe-2Fu/ps-tag-onboarding-go/models/error"
-	"github.com/Zoe-2Fu/ps-tag-onboarding-go/mongo"
-	validator "github.com/Zoe-2Fu/ps-tag-onboarding-go/validators"
+	errs "github.com/Zoe-2Fu/ps-tag-onboarding-go/internal/constants"
+	models "github.com/Zoe-2Fu/ps-tag-onboarding-go/internal/data"
+	repo "github.com/Zoe-2Fu/ps-tag-onboarding-go/internal/repository"
+	validator "github.com/Zoe-2Fu/ps-tag-onboarding-go/internal/validators"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func TestSave_StatusCreated(t *testing.T) {
@@ -22,7 +23,7 @@ func TestSave_StatusCreated(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	userRepoMock := new(mongo.UserRepoMock)
+	userRepoMock := new(repo.UserRepoMock)
 	validatorMock := new(validator.UserValidatorMock)
 
 	userHandler := &UserHandler{
@@ -30,7 +31,7 @@ func TestSave_StatusCreated(t *testing.T) {
 		validator: validatorMock,
 	}
 
-	userRepoMock.On("Save", mock.Anything, mock.Anything).Return(nil)
+	userRepoMock.On("Save", mock.Anything, mock.Anything).Return(primitive.NewObjectID(), nil)
 	validatorMock.On("ValidateUserDetails", mock.Anything, mock.Anything).Return((*errs.ErrorMessage)(nil))
 
 	// act
@@ -45,7 +46,7 @@ func TestFind_StatusOK(t *testing.T) {
 	// arrange
 	e := echo.New()
 
-	userRepoMock := new(mongo.UserRepoMock)
+	userRepoMock := new(repo.UserRepoMock)
 	validatorMock := new(validator.UserValidatorMock)
 
 	userHandler := &UserHandler{
@@ -53,14 +54,14 @@ func TestFind_StatusOK(t *testing.T) {
 		validator: validatorMock,
 	}
 
-	userID := "123333"
+	userID := primitive.NewObjectID()
 	expectedUser := models.NewUser(userID, "John", "Doe", "a@a.a", 20)
 	expectedReponseBody, _ := json.Marshal(expectedUser)
 
 	userRepoMock.On("Find", mock.Anything, mock.Anything).Return(expectedUser, nil)
 	validatorMock.On("ValidateUserDetails", mock.Anything, mock.Anything).Return((*errs.ErrorMessage)(nil))
 
-	req := httptest.NewRequest(http.MethodPost, "/find/"+userID, nil)
+	req := httptest.NewRequest(http.MethodPost, "/save/"+userID.Hex(), nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
@@ -77,7 +78,7 @@ func TestFind_StatusNotFound(t *testing.T) {
 	// arrange
 	e := echo.New()
 
-	userRepoMock := new(mongo.UserRepoMock)
+	userRepoMock := new(repo.UserRepoMock)
 	validatorMock := new(validator.UserValidatorMock)
 
 	userHandler := &UserHandler{
