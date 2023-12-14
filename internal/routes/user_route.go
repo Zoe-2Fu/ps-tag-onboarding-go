@@ -7,5 +7,5 @@ import (
 
 func UserRoute(e *echo.Echo, handler handler.UserHandler) {
 	e.GET("/user/:id", handler.Find)
-	e.POST("/save", handler.Save)
+	e.POST("/user", handler.Save)
 }
