@@ -1,9 +1,5 @@
 package constants
 
-import (
-	models "github.com/Zoe-2Fu/ps-tag-onboarding-go/internal/data"
-)
-
 var (
 	ErrorAgeMinimum          = "User does not meet minimum age requirement"
 	ErrorEmailFormat         = "User email must be properly formatted"
@@ -18,12 +14,11 @@ var (
 )
 
 type ErrorMessage struct {
-	Error   string                `json:"error"`
-	Details []string              `json:"details"`
-	User    *models.UserWithoutID `json:"user,omitempty"`
+	Error   string   `json:"error"`
+	Details []string `json:"details"`
 }
 
-func NewErrorMessage(errMsg string, detail string, user models.UserWithoutID) ErrorMessage {
+func NewErrorMessage(errMsg string, detail string) ErrorMessage {
 	details := []string{detail}
-	return ErrorMessage{errMsg, details, &user}
+	return ErrorMessage{errMsg, details}
 }

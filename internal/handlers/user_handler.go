@@ -35,7 +35,8 @@ func (h *UserHandler) Find(c echo.Context) error {
 
 	user, err := h.userRepo.Find(c, id)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "User not found")
+		errMsg := errs.NewErrorMessage(errs.ErrorBadRequest, "User not found")
+		return echo.NewHTTPError(http.StatusBadRequest, errMsg)
 	}
 	return c.JSON(http.StatusOK, user)
 }
@@ -46,7 +47,7 @@ func (h *UserHandler) Save(c echo.Context) error {
 
 	user := new(models.User)
 	if err := c.Bind(user); err != nil {
-		errMsg := errs.NewErrorMessage(errs.ErrorBadRequest, "Can't bind values", user.ToWithouUserID())
+		errMsg := errs.NewErrorMessage(errs.ErrorBadRequest, "Can't bind values")
 		return echo.NewHTTPError(http.StatusBadRequest, errMsg)
 	}
 

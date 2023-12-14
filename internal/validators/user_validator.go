@@ -27,7 +27,7 @@ func (v *UserValidator) ValidateUserDetails(user models.User) *errs.ErrorMessage
 	} else {
 		isExist := v.userRepo.ValidateUserExisted(user)
 		if isExist {
-			errMsg := errs.NewErrorMessage(errs.ResponseValidationFailed, errs.ErrorNameUnique, user.ToWithouUserID())
+			errMsg := errs.NewErrorMessage(errs.ResponseValidationFailed, errs.ErrorNameUnique)
 
 			return &errMsg
 		}
@@ -43,12 +43,10 @@ func (v *UserValidator) ValidateUserDetails(user models.User) *errs.ErrorMessage
 		errorDetails = append(errorDetails, errs.ErrorAgeMinimum)
 	}
 
-	userWithoutID := user.ToWithouUserID()
 	if len(errorDetails) > 0 {
 		errMsg := errs.ErrorMessage{
 			Error:   errs.ResponseValidationFailed,
 			Details: errorDetails,
-			User:    &userWithoutID,
 		}
 
 		return &errMsg

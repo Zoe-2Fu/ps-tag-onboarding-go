@@ -36,7 +36,7 @@ func TestValidateUserDetails_UserIsExisted(t *testing.T) {
 		userRepo: userRepoMock,
 	}
 
-	expectedOutput := errs.NewErrorMessage(errs.ResponseValidationFailed, errs.ErrorNameUnique, user.ToWithouUserID())
+	expectedOutput := errs.NewErrorMessage(errs.ResponseValidationFailed, errs.ErrorNameUnique)
 	expectedOutputPointer := &expectedOutput
 
 	userRepoMock.On("ValidateUserExisted", mock.Anything, mock.Anything).Return(true)
@@ -54,7 +54,7 @@ func TestValidateUserDetails_UserNameIsMissing(t *testing.T) {
 		userRepo: userRepoMock,
 	}
 
-	expectedOutput := errs.NewErrorMessage(errs.ResponseValidationFailed, errs.ErrorNameRequired, user.ToWithouUserID())
+	expectedOutput := errs.NewErrorMessage(errs.ResponseValidationFailed, errs.ErrorNameRequired)
 	expectedOutputPointer := &expectedOutput
 
 	userRepoMock.On("ValidaiteUserExisted", mock.Anything, mock.Anything).Return(false)
@@ -72,7 +72,7 @@ func TestValidateUserDetails_UserEmailIsMissing(t *testing.T) {
 		userRepo: userRepoMock,
 	}
 
-	expectedOutput := errs.NewErrorMessage(errs.ResponseValidationFailed, errs.ErrorEmailRequired, user.ToWithouUserID())
+	expectedOutput := errs.NewErrorMessage(errs.ResponseValidationFailed, errs.ErrorEmailRequired)
 	expectedOutputPointer := &expectedOutput
 
 	userRepoMock.On("ValidateUserExisted", mock.Anything, mock.Anything).Return(false)
@@ -90,7 +90,7 @@ func TestValidateUserDetails_InvalidUserEmailFormat(t *testing.T) {
 		userRepo: userRepoMock,
 	}
 
-	expectedOutput := errs.NewErrorMessage(errs.ResponseValidationFailed, errs.ErrorEmailFormat, user.ToWithouUserID())
+	expectedOutput := errs.NewErrorMessage(errs.ResponseValidationFailed, errs.ErrorEmailFormat)
 	expectedOutputPointer := &expectedOutput
 
 	userRepoMock.On("ValidateUserExisted", mock.Anything, mock.Anything).Return(false)
@@ -108,7 +108,7 @@ func TestValidateUserDetails_InvalidUserAge(t *testing.T) {
 		userRepo: userRepoMock,
 	}
 
-	expectedOutput := errs.NewErrorMessage(errs.ResponseValidationFailed, errs.ErrorAgeMinimum, user.ToWithouUserID())
+	expectedOutput := errs.NewErrorMessage(errs.ResponseValidationFailed, errs.ErrorAgeMinimum)
 	expectedOutputPointer := &expectedOutput
 
 	userRepoMock.On("ValidateUserExisted", mock.Anything, mock.Anything).Return(false)
@@ -126,11 +126,9 @@ func TestValidateUserDetails_MultipleUserDetailsErrors(t *testing.T) {
 		userRepo: userRepoMock,
 	}
 
-	expectedUser := user.ToWithouUserID()
 	expectedOutput := errs.ErrorMessage{
 		Error:   errs.ResponseValidationFailed,
 		Details: []string{errs.ErrorNameRequired, errs.ErrorEmailFormat},
-		User:    &expectedUser,
 	}
 	expectedOutputPointer := &expectedOutput
 
