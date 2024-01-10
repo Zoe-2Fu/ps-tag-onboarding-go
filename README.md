@@ -1,6 +1,12 @@
 # ps-tag-onboarding-go
+## Overview
+The project is a Go implementation of a Java application, serving as an onboarding exercise. It leverages the `echo` framework, a fast and minimalist Go web framework. Focus on building a RESTful API for managing user information, with features such as user creation, retrieval, and error handling.
+
+## Onboarding Exercise Details
+This repository is part of an onboarding exercise. For the original Java project and onboarding details, please check out: https://wexinc.atlassian.net/wiki/spaces/TGT/pages/153576505378/Developer+Onboarding+Exercise+-+Advanced
+
 ## Setup
-1. Run the docker container
+1. Run the docker container under `/ps-tag-onboarding-go/` folder
     ``` shell
         docker compose up --build -d
     ```
